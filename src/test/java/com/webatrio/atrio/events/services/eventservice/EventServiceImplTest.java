@@ -7,7 +7,6 @@ import com.webatrio.atrio.events.mappers.EventsMapper;
 import com.webatrio.atrio.events.mappers.EventsMapperImpl;
 import com.webatrio.atrio.events.models.Event;
 import org.assertj.core.api.Assertions;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

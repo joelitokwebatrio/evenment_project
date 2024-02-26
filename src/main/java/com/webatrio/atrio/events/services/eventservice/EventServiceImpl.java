@@ -29,7 +29,13 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventsMapper eventsMapper;
 
-
+    /**
+     * Ajouter un evenement a dans la base de donnees
+     *
+     * @param eventDTO
+     * @return
+     * @throws EventAlreadyExistException
+     */
     @Override
     public EventDTO addEvent(EventDTO eventDTO) throws EventAlreadyExistException {
         if (Objects.nonNull(eventDTO) && Objects.nonNull(eventDTO.getTitle())) {
@@ -43,6 +49,14 @@ public class EventServiceImpl implements EventService {
         return eventsMapper.mapEventToEventDTO(event);
     }
 
+    /**
+     * recuperer l'ensemble des evenements qui sont present dans la base de donnees
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param location
+     * @return
+     */
     @Override
     public List<EventDTO> getEvents(int pageNo, int pageSize, String location) {
         List<EventDTO> getPageByLocation = getEventDTOSByLocationAndPage(pageNo, pageSize, location);
@@ -55,22 +69,40 @@ public class EventServiceImpl implements EventService {
 
     }
 
+    /**
+     * recuperation de tous les evenements en fonction des place
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param location
+     * @return
+     */
     private List<EventDTO> getEventDTOSByLocationAndPage(int pageNo, int pageSize, String location) {
         if (Strings.isNotBlank(location)) {
             Pageable pageable = PageRequest.of(pageNo, pageSize);
             Page<Event> page = eventRepository.findAll(pageable);
-            if (Strings.isNotBlank(String.valueOf(pageNo))  && Strings.isNotBlank(String.valueOf(pageSize))) {
+            if (Strings.isNotBlank(String.valueOf(pageNo)) && Strings.isNotBlank(String.valueOf(pageSize))) {
                 return page.getContent().stream()
                         .filter(event -> event.getPlace().equalsIgnoreCase(location)).filter(Event::isStatus)
                         .map(eventsMapper::mapEventToEventDTO).toList();
-            }else {
+            } else {
                 return eventRepository.findAll()
                         .stream().filter(event -> event.getPlace().equalsIgnoreCase(location))
                         .filter(Event::isStatus).map(eventsMapper::mapEventToEventDTO)
-                        .toList();}
+                        .toList();
+            }
         }
         return null;
     }
+
+    /**
+     * recuperation des evenements sans presicer la place
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param location
+     * @return
+     */
 
     private List<EventDTO> getEventDTOSNotByLocation(int pageNo, int pageSize, String location) {
         if (Strings.isBlank(location)) {
@@ -83,11 +115,21 @@ public class EventServiceImpl implements EventService {
             } else {
                 return eventRepository.findAll().stream().filter(Event::isStatus)
                         .map(eventsMapper::mapEventToEventDTO)
-                        .toList();}
+                        .toList();
+            }
         }
         return null;
     }
 
+    /**
+     * changer l'etat des evenements de notre base de donnees.
+     * En effet cela doit nous permet de rentre certain evenement invisible.
+     * Ceci est fait pour ne pas supprimer les evenement de la base de donnees mais plustot les rentre invisible
+     *
+     * @param title
+     * @return
+     * @throws EventNotFoundException
+     */
     @Override
     public EventDTO cancelEvent(String title) throws EventNotFoundException {
         Optional<Event> eventOptional = eventRepository.findAll()
@@ -108,6 +150,14 @@ public class EventServiceImpl implements EventService {
 
     }
 
+    /**
+     * Modification des evenements de notre base de donnees
+     *
+     * @param eventDTO
+     * @return
+     * @throws EventNotFoundException
+     * @throws EventErrorException
+     */
     @Override
     public EventDTO updateEvent(EventDTO eventDTO) throws EventNotFoundException, EventErrorException {
         if (Objects.nonNull(eventDTO) && Objects.nonNull(eventDTO.getTitle())) {
@@ -125,13 +175,16 @@ public class EventServiceImpl implements EventService {
 
 
     private void setEventValues(EventDTO eventDTO, Optional<Event> eventOptional) {
-        eventOptional.get().setTitle(eventsMapper.mapEventDTOToEvent(eventDTO).getTitle());
-        eventOptional.get().setDescription(eventsMapper.mapEventDTOToEvent(eventDTO).getDescription());
-        eventOptional.get().setStartEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getStartEventDate());
-        eventOptional.get().setEndEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getEndEventDate());
-        eventOptional.get().setPlace(eventsMapper.mapEventDTOToEvent(eventDTO).getPlace());
-        eventOptional.get().setNumberOfParticipants(eventsMapper.mapEventDTOToEvent(eventDTO).getNumberOfParticipants());
-        eventOptional.get().setStatus(eventsMapper.mapEventDTOToEvent(eventDTO).isStatus());
-        eventOptional.get().setOrganiserName(eventsMapper.mapEventDTOToEvent(eventDTO).getOrganiserName());
+        if (eventOptional.isPresent()) {
+            eventOptional.get().setTitle(eventsMapper.mapEventDTOToEvent(eventDTO).getTitle());
+            eventOptional.get().setDescription(eventsMapper.mapEventDTOToEvent(eventDTO).getDescription());
+            eventOptional.get().setStartEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getStartEventDate());
+            eventOptional.get().setEndEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getEndEventDate());
+            eventOptional.get().setPlace(eventsMapper.mapEventDTOToEvent(eventDTO).getPlace());
+            eventOptional.get().setNumberOfParticipants(eventsMapper.mapEventDTOToEvent(eventDTO).getNumberOfParticipants());
+            eventOptional.get().setStatus(eventsMapper.mapEventDTOToEvent(eventDTO).isStatus());
+            eventOptional.get().setOrganiserName(eventsMapper.mapEventDTOToEvent(eventDTO).getOrganiserName());
+        }
+
     }
 }

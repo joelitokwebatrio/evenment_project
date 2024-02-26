@@ -1,6 +1,7 @@
 package com.webatrio.atrio.security.controllers.participantcontroller;
 
 import com.webatrio.atrio.security.dto.ChangePasswordRequest;
+import com.webatrio.atrio.security.exceptions.PasswordException;
 import com.webatrio.atrio.security.services.participantservice.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ParticipantController {
 
     @PatchMapping
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal connectedUser
-    ) {
+    ) throws PasswordException {
         participantService.changePassword(request, connectedUser);
         return ResponseEntity.ok().build();
     }

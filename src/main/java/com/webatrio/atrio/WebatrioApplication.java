@@ -1,21 +1,7 @@
 package com.webatrio.atrio;
 
-import com.webatrio.atrio.events.dto.EventDTO;
-import com.webatrio.atrio.events.services.eventservice.EventService;
-import com.webatrio.atrio.security.services.authservice.AuthenticationService;
-import com.webatrio.atrio.security.dto.RegisterRequest;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-
-import static com.webatrio.atrio.security.enums.Role.ORGANIZER;
-import static com.webatrio.atrio.security.enums.Role.PARTICIPANT;
 
 @SpringBootApplication
 public class WebatrioApplication{

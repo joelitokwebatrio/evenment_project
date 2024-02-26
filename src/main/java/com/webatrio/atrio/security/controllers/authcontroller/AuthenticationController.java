@@ -1,9 +1,10 @@
 package com.webatrio.atrio.security.controllers.authcontroller;
 
-import com.webatrio.atrio.security.services.authservice.AuthenticationService;
+import com.webatrio.atrio.events.exceptions.ParticipantNotFoundException;
 import com.webatrio.atrio.security.dto.AuthenticationRequest;
 import com.webatrio.atrio.security.dto.AuthenticationResponse;
 import com.webatrio.atrio.security.dto.RegisterRequest;
+import com.webatrio.atrio.security.services.authservice.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws ParticipantNotFoundException {
         return ResponseEntity.ok(service.authenticate(request));
     }
 

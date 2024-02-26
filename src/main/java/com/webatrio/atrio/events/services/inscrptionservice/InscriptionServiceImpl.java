@@ -27,6 +27,15 @@ public class InscriptionServiceImpl implements InscriptionService {
     private final EPRepository epRepository;
     private final ParticipantRepository participantRepository;
 
+    /**
+     * Inscrire un participant a un evenement
+     *
+     * @param eventTitle
+     * @param email
+     * @throws EventNotFoundException
+     * @throws ParticipantNotFoundException
+     * @throws EventErrorException
+     */
     @Override
     public void addParticipantToEvent(String eventTitle, String email) throws EventNotFoundException, ParticipantNotFoundException, EventErrorException {
         Optional<Event> event = eventRepository.findEventByTitle(eventTitle);
@@ -37,16 +46,16 @@ public class InscriptionServiceImpl implements InscriptionService {
         if (event.isEmpty()) {
             throw new EventNotFoundException(EVENT_NOT_EXIST);
         }
-/**
- * Ajouter le nombre de participant a un evenement
- */
+        /**
+         * Ajouter le nombre de participant a un evenement
+         */
         int numberOfParticipant = event.get().getNumberOfParticipants();
-        event.get().setNumberOfParticipants(numberOfParticipant+1);
+        event.get().setNumberOfParticipants(numberOfParticipant + 1);
         eventRepository.save(event.get());
-/**
- * Ajouter les participant et
- * les evenement dans la table de jointure que j'utilise pour faire la correspondance
- */
+        /**
+         * Ajouter les participant et les evenement dans la table de jointure
+         * que j'utilise pour faire la correspondance
+         */
         EP ep = new EP();
         ep.setEventId(event.get().getId());
         ep.setParticipantId(participant.get().getId());
@@ -60,12 +69,23 @@ public class InscriptionServiceImpl implements InscriptionService {
         epRepository.save(ep);
     }
 
+        /**
+         * Annuler un evenement
+         * @param emailParticipant
+         * @param titleEvent
+         */
+
     @Override
     public void cancelParticipantToEvent(String emailParticipant, String titleEvent) {
         Optional<EP> epFind = epRepository.findEPByParticipantEmail(emailParticipant);
         epFind.ifPresent(epRepository::delete);
     }
 
+    /**
+     * Recuperation de tous les participant inscrire a un evenement.
+     * @param titleEvent
+     * @return
+     */
     @Override
     public List<Participant> getAllParticipantByEvents(String titleEvent) {
         List<Participant> users = new ArrayList<>();

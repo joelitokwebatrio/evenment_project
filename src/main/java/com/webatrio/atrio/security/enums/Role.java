@@ -1,6 +1,5 @@
 package com.webatrio.atrio.security.enums;
 
-import com.webatrio.atrio.security.enums.Permission;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,14 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.webatrio.atrio.security.enums.Permission.ORGANIZER_CREATE;
-import static com.webatrio.atrio.security.enums.Permission.ORGANIZER_DELETE;
-import static com.webatrio.atrio.security.enums.Permission.ORGANIZER_READ;
-import static com.webatrio.atrio.security.enums.Permission.ORGANIZER_UPDATE;
-import static com.webatrio.atrio.security.enums.Permission.PARTICIPANT_CREATE;
-import static com.webatrio.atrio.security.enums.Permission.PARTICIPANT_DELETE;
-import static com.webatrio.atrio.security.enums.Permission.PARTICIPANT_READ;
-import static com.webatrio.atrio.security.enums.Permission.PARTICIPANT_UPDATE;
+import static com.webatrio.atrio.security.enums.Permission.*;
 
 
 @RequiredArgsConstructor
