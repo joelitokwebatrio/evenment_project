@@ -18,10 +18,5 @@ public class EventDTO {
     private LocalDateTime startEventDate;
     private LocalDateTime endEventDate;
     private String place;
-    private Integer numberOfParticipants;
-    private String organiserName;
-    private List<String> listEmailsParticipant = new ArrayList<>();
-    private boolean status;
-    private long totalOfThisTypeElement;
 
 }

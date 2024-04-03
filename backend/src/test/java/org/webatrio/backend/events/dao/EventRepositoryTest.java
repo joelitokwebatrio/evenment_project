@@ -1,6 +1,5 @@
 package org.webatrio.backend.events.dao;
 
-import org.webatrio.backend.events.models.Event;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,10 +8,13 @@ import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.webatrio.backend.events.models.Event;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @ActiveProfiles("test")
@@ -39,7 +41,7 @@ class EventRepositoryTest {
     }
 
     @Test
-    void findEventByTitle404() {
+    void findEventByTitleNotFound() {
         //given
         //when
         Event ep = eventRepository.findEventByTitle("rama").orElse(null);
@@ -49,8 +51,33 @@ class EventRepositoryTest {
 
     }
 
-    public Event getEvent(){
-       return eventRepository.save(Event.builder()
+    @Test
+    void findEventByPlaceContaining() {
+        //given
+        eventRepository.save(getEvent());
+
+        //when
+        List<Event> events = eventRepository.findEventByPlaceContaining("p");
+
+        //then
+        Assertions.assertThat(events).isNotNull();
+    }
+
+    @Test
+    void findEventByPlaceContainingNotFound() {
+        //given
+
+        //when
+        List<Event> events = eventRepository.findEventByPlaceContaining("");
+
+        //then
+        Assertions.assertThat(events).isNotNull();
+    }
+
+
+
+    public Event getEvent() {
+        return eventRepository.save(Event.builder()
                 .title("rama")
                 .description("pour la fete pour la fete de ramadam")
                 .startEventDate(LocalDateTime.of(LocalDate.of(1999, 2, 2), LocalTime.of(10, 10)))
@@ -61,4 +88,5 @@ class EventRepositoryTest {
                 .organiserName("felix")
                 .build());
     }
+
 }

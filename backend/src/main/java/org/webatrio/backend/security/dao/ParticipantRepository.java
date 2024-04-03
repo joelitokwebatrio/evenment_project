@@ -1,7 +1,6 @@
 package org.webatrio.backend.security.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 import org.webatrio.backend.security.models.participant.Participant;
 
@@ -13,5 +12,4 @@ public interface ParticipantRepository extends JpaRepository<Participant, Intege
     Optional<Participant> findParticipantByEmail(String email);
     Optional<Participant> findParticipantByFirstname(String firstname);
     Optional<Participant> findParticipantByUsername(String firstname);
-
 }

@@ -4,11 +4,12 @@ import org.junit.jupiter.api.Test;
 
 class TokenRepositoryTest {
 
+
     @Test
-    void findAllValidTokenByUser() {
+    void testFindAllValidTokenByUser() {
     }
 
     @Test
-    void findByToken() {
+    void testFindByToken() {
     }
 }

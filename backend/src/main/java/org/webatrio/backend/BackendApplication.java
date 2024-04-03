@@ -8,6 +8,7 @@ import org.webatrio.backend.events.dao.EventRepository;
 import org.webatrio.backend.events.dto.EventDTO;
 import org.webatrio.backend.events.services.eventservice.EventService;
 import org.webatrio.backend.security.dao.ParticipantRepository;
+import org.webatrio.backend.security.dao.TokenRepository;
 import org.webatrio.backend.security.dto.RegisterRequest;
 import org.webatrio.backend.security.enums.Gender;
 import org.webatrio.backend.security.services.authservice.AuthenticationService;
@@ -32,21 +33,21 @@ public class BackendApplication {
             AuthenticationService service,
             EventService eventService,
             EventRepository eventRepository,
-            ParticipantRepository participantRepository) {
+            ParticipantRepository participantRepository,
+            TokenRepository tokenRepository) {
         return args -> {
+            tokenRepository.deleteAll();
             eventRepository.deleteAll();
+            participantRepository.deleteAll();
             eventService.addEvent(EventDTO.builder()
                     .title("rama")
                     .description("pour la fete pour la fete de ramadam")
                     .startEventDate(LocalDateTime.of(LocalDate.of(1999, 2, 2), LocalTime.of(10, 10)))
                     .endEventDate(LocalDateTime.of(LocalDate.of(2000, 2, 2), LocalTime.of(11, 11)))
                     .place("paris")
-                    .numberOfParticipants(200)
-                    .status(true)
-                    .organiserName("felix")
                     .build());
 
-            eventService.getEvents(1, 1, "paris").stream().map(EventDTO::getPlace).forEach(System.out::println);
+            eventService.getEvents("paris").stream().map(EventDTO::getPlace).forEach(System.out::println);
 
             eventService.addEvent(EventDTO.builder()
                     .title("ramadam")
@@ -54,13 +55,8 @@ public class BackendApplication {
                     .startEventDate(LocalDateTime.of(LocalDate.of(1999, 2, 2), LocalTime.of(10, 10)))
                     .endEventDate(LocalDateTime.of(LocalDate.of(2000, 2, 2), LocalTime.of(11, 11)))
                     .place("quatar")
-                    .numberOfParticipants(2000)
-                    .status(true)
-                    .organiserName("ethan")
                     .build());
-            eventService.getEvents(1, 1, "quatar").stream().map(EventDTO::getPlace).forEach(System.out::println);
-
-            participantRepository.deleteAll();
+            eventService.getEvents("quatar").stream().map(EventDTO::getPlace).forEach(System.out::println);
             var organizer = RegisterRequest.builder()
                     .firstname("Participant")
                     .lastname("Participant")
@@ -74,16 +70,29 @@ public class BackendApplication {
             System.out.println("Organizer token: " + service.register(organizer).getAccessToken());
 
             var participant = RegisterRequest.builder()
-                    .firstname("Participant")
-                    .lastname("Participant")
-                    .email("jojo@mail.com")
+                    .firstname("mathieu")
+                    .lastname("mathieu")
+                    .email("mathieu@mail.com")
                     .password("123456")
-                    .role(PARTICIPANT)
+                    .role(ORGANIZER)
                     .gender(Gender.MALE)
                     .username("giles")
                     .titleEvents(List.of("rama"))
                     .build();
-            System.out.println("Participant token: " + service.register(participant).getAccessToken());
+            System.out.println("Organisateur token: " + service.register(participant).getAccessToken());
+
+            var participant2 = RegisterRequest.builder()
+                    .firstname("Participant")
+                    .lastname("Participant")
+                    .email("placide@mail.com")
+                    .password("12345")
+                    .role(PARTICIPANT)
+                    .gender(Gender.MALE)
+                    .username("gils")
+                    .titleEvents(List.of("noel"))
+                    .build();
+            System.out.println("Participant 2 token: " + service.register(participant2).getAccessToken());
+
         };
     }
 

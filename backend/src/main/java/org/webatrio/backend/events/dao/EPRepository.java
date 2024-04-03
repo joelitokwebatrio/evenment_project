@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface EPRepository extends JpaRepository<EP, Long> {
     Optional<EP> findEPByParticipantEmail(String email);
-
+    Optional<EP> findEPByParticipantEmailAndEventTitle(String email,String eventTitle);
     List<EP> findEPByEventTitle(String title);
 }

@@ -13,13 +13,15 @@ public interface EventService {
     EventDTO addEvent(EventDTO eventDTO) throws EventAlreadyExistException;
 
     Optional<EventDTO> getEvent(Long idEvent);
+
     void deleteEvent(Long idEvent);
 
-    List<EventDTO> getEvents(int pageNo, int pageSize, String location);
+    List<EventDTO> getEvents(String location);
 
-    EventDTO cancelEvent(String title) throws EventNotFoundException;
 
     EventDTO updateEvent(EventDTO eventDTO) throws EventNotFoundException, EventErrorException;
+
+    List<EventDTO> getEventByIdParticipant(Integer id);
 
 
 }

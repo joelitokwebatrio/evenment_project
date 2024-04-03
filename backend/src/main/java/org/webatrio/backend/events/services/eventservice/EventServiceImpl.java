@@ -2,10 +2,6 @@ package org.webatrio.backend.events.services.eventservice;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.webatrio.backend.events.dao.EventRepository;
 import org.webatrio.backend.events.dto.EventDTO;
@@ -14,10 +10,10 @@ import org.webatrio.backend.events.exceptions.EventErrorException;
 import org.webatrio.backend.events.exceptions.EventNotFoundException;
 import org.webatrio.backend.events.mappers.EventsMapper;
 import org.webatrio.backend.events.models.Event;
+import org.webatrio.backend.security.dao.ParticipantRepository;
+import org.webatrio.backend.security.models.participant.Participant;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static org.webatrio.backend.events.utils.Utils.*;
 
@@ -26,7 +22,9 @@ import static org.webatrio.backend.events.utils.Utils.*;
 @Transactional
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
+    private final ParticipantRepository participantRepository;
     private final EventsMapper eventsMapper;
+
 
     /**
      * Ajouter un evenement a dans la base de donnees
@@ -62,80 +60,24 @@ public class EventServiceImpl implements EventService {
 
     /**
      * recuperer l'ensemble des evenements qui sont present dans la base de donnees
-     *
-     * @param pageNo
-     * @param pageSize
-     * @param location
-     * @return
      */
     @Override
-    public List<EventDTO> getEvents(int pageNo, int pageSize, String location) {
-        return getEventDTOSByLocationAndPage(pageNo, pageSize, location);
+    public List<EventDTO> getEvents(String location) {
+        return getEventDTOSByLocationAndPage(location);
 
 
     }
 
     /**
      * recuperation de tous les evenements en fonction des place
-     *
-     * @param pageNo
-     * @param pageSize
-     * @param location
-     * @return
      */
-    private List<EventDTO> getEventDTOSByLocationAndPage(int pageNo, int pageSize, String location) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Event> page = eventRepository.findAll(pageable);
-        long totalElements = page.getTotalElements();
-        if (Strings.isNotBlank(String.valueOf(pageNo)) && Strings.isNotBlank(String.valueOf(pageSize))) {
-            List<EventDTO> eventsDTO = page.getContent().stream()
-                    .filter(event -> event.getPlace().contains(location))
-                    .filter(Event::isStatus)
-                    .map(eventsMapper::mapEventToEventDTO).toList();
-            return addTotalElementsInfo(eventsDTO, totalElements);
-        } else {
-            List<EventDTO> eventsDTO = eventRepository.findAll().stream()
-                    .filter(Event::isStatus)
-                    .map(eventsMapper::mapEventToEventDTO)
-                    .toList();
-            return addTotalElementsInfo(eventsDTO, totalElements);
-        }
+    private List<EventDTO> getEventDTOSByLocationAndPage(String location) {
+        return eventRepository.findAll().stream()
+                .filter(event -> event.getPlace().contains(location))
+                .sorted(Comparator.comparing(Event::getId).reversed())
+                .map(eventsMapper::mapEventToEventDTO)
 
-    }
-
-    private List<EventDTO> addTotalElementsInfo(List<EventDTO> eventsDTO, long totalElements) {
-        eventsDTO.stream().findFirst()
-                .ifPresent(eventDTO -> eventDTO.setTotalOfThisTypeElement(totalElements));
-        return eventsDTO;
-    }
-
-
-    /**
-     * changer l'etat des evenements de notre base de donnees.
-     * En effet cela doit nous permet de rentre certain evenement invisible.
-     * Ceci est fait pour ne pas supprimer les evenement de la base de donnees mais plustot les rentre invisible
-     *
-     * @param title
-     * @return
-     * @throws EventNotFoundException
-     */
-    @Override
-    public EventDTO cancelEvent(String title) throws EventNotFoundException {
-        Optional<Event> eventOptional = eventRepository.findAll()
-                .stream().filter(event -> event.getTitle().equals(title))
-                .findFirst();
-
-        if (eventOptional.isEmpty()) {
-            throw new EventNotFoundException(EVENT_NOT_EXIST);
-        }
-
-        eventOptional.ifPresent(event -> {
-            event.setStatus(false);
-            eventRepository.save(eventOptional.get());
-        });
-
-
-        return eventsMapper.mapEventToEventDTO(eventOptional.get());
+                .toList();
 
     }
 
@@ -150,7 +92,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDTO updateEvent(EventDTO eventDTO) throws EventNotFoundException, EventErrorException {
         if (Objects.nonNull(eventDTO) && Objects.nonNull(eventDTO.getTitle())) {
-            Optional<Event> eventOptional = eventRepository.findEventByTitle(eventDTO.getTitle());
+
+            Optional<Event> eventOptional = eventRepository.findById(eventDTO.getId());
             if (eventOptional.isEmpty()) {
                 throw new EventNotFoundException(EVENT_NOT_EXIST);
             }
@@ -162,6 +105,20 @@ public class EventServiceImpl implements EventService {
         throw new EventErrorException(ERROR_UNKNOWM);
     }
 
+    /**
+     * Cette methode doit me permettre de retourer l'ensemble des evenements d'un utilisateur en fonction de son id
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public List<EventDTO> getEventByIdParticipant(Integer id) {
+        List<Event> events = participantRepository.findById(id)
+                .map(Participant::getEvents).orElse(Collections.emptyList());
+        return events.stream().map(eventsMapper::mapEventToEventDTO).toList();
+
+    }
+
 
     private void setEventValues(EventDTO eventDTO, Optional<Event> eventOptional) {
         if (eventOptional.isPresent()) {
@@ -170,10 +127,7 @@ public class EventServiceImpl implements EventService {
             eventOptional.get().setStartEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getStartEventDate());
             eventOptional.get().setEndEventDate(eventsMapper.mapEventDTOToEvent(eventDTO).getEndEventDate());
             eventOptional.get().setPlace(eventsMapper.mapEventDTOToEvent(eventDTO).getPlace());
-            eventOptional.get().setNumberOfParticipants(eventsMapper.mapEventDTOToEvent(eventDTO).getNumberOfParticipants());
-            eventOptional.get().setStatus(eventsMapper.mapEventDTOToEvent(eventDTO).isStatus());
-            eventOptional.get().setOrganiserName(eventsMapper.mapEventDTOToEvent(eventDTO).getOrganiserName());
         }
-
     }
+
 }

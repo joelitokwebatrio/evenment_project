@@ -3,7 +3,6 @@ package org.webatrio.backend.security.controllers.authcontroller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,7 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws ParticipantNotFoundException {
-        AuthenticationResponse idToken =this.authenticationService.authenticate(request);
+        AuthenticationResponse idToken = this.authenticationService.authenticate(request);
         return ResponseEntity.ok(idToken);
     }
 
@@ -55,7 +54,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping( "/profile")
+    @GetMapping("/profile")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<Participant> getUserProfile(String email) throws ParticipantNotFoundException {
         return ResponseEntity.ok(this.authenticationService.findParticipantByEmail(email));
@@ -73,8 +72,24 @@ public class AuthenticationController {
     }
 
     @GetMapping("/participants")
-    private List<Participant> getAllParticipants(){
+    private List<Participant> getAllParticipants() {
         return authenticationService.getAllParticipants();
+    }
+
+    @DeleteMapping("/participant/delete/{id}")
+    private ResponseEntity<Void> deleteParticipant(@PathVariable("id") Integer id) {
+        authenticationService.deleteParticipant(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/participant/{id}")
+    private ResponseEntity<Participant> getParticipantById(@PathVariable("id") Integer id) throws ParticipantNotFoundException {
+        return ResponseEntity.ok(authenticationService.getParticipantById(id));
+    }
+
+    @PatchMapping("/participant/update")
+    private ResponseEntity<Participant> updateParticipant(@RequestBody  Participant participant) throws ParticipantNotFoundException {
+        return ResponseEntity.ok(authenticationService.updateParticipant(participant));
     }
 
 }

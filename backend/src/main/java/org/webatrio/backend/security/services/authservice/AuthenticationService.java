@@ -24,8 +24,10 @@ import org.webatrio.backend.security.models.token.Token;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.webatrio.backend.events.utils.Utils.PARTICIPANT_NOT_FOUND;
 import static org.webatrio.backend.security.utils.Utils.PASSWORD_ARE_NOT_THE_SAME;
@@ -174,7 +176,6 @@ public class AuthenticationService {
          * update the password
          */
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
         /**
          * save the new password
          */
@@ -219,8 +220,53 @@ public class AuthenticationService {
         return participant == null;
     }
 
-    public List<Participant> getAllParticipants(){
-        return participantRepository.findAll();
+    public List<Participant> getAllParticipants() {
+        return participantRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(Participant::getId).reversed())
+                .toList();
+    }
+
+    public void deleteParticipant(int id) {
+        participantRepository.deleteById(id);
+    }
+
+    public Participant getParticipantById(int id) throws ParticipantNotFoundException {
+        return participantRepository.findById(id)
+                .orElseThrow(() -> new ParticipantNotFoundException(PARTICIPANT_NOT_FOUND));
+    }
+
+    /**
+     * A modifier cette methode pour ameliorer la modificaton des informations dans la base de donnees
+     *
+     * @param participant
+     * @return
+     * @throws ParticipantNotFoundException
+     */
+    public Participant updateParticipant(Participant participant) throws ParticipantNotFoundException {
+        if (Objects.nonNull(participant.getEmail())
+                && Objects.nonNull(participant.getFirstname())
+                && Objects.nonNull(participant.getLastname())) {
+            Optional<Participant> participantOptional = participantRepository.findById(participant.getId());
+            if (participantOptional.isEmpty()) {
+                throw new ParticipantNotFoundException(PARTICIPANT_NOT_FOUND);
+            }
+            mapParticipant(participant, participantOptional);
+            return participantRepository.save(participant);
+        }
+        return null;
+    }
+
+    private void mapParticipant(Participant participant, Optional<Participant> participantOptional) {
+
+        if (participantOptional.isPresent()) {
+            participantOptional.get().setEmail(participant.getEmail());
+            participantOptional.get().setFirstname(participant.getFirstname());
+            participantOptional.get().setLastname(participant.getLastname());
+            participantOptional.get().setRole(participant.getRole());
+            participantOptional.get().setGender(participant.getGender());
+            participantOptional.get().setUsername(participant.getUsername());
+        }
     }
 
 }

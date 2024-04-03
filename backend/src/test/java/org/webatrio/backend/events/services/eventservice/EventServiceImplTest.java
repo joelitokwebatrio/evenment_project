@@ -9,12 +9,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 import org.webatrio.backend.events.dao.EventRepository;
 import org.webatrio.backend.events.dto.EventDTO;
 import org.webatrio.backend.events.exceptions.EventAlreadyExistException;
+import org.webatrio.backend.events.exceptions.EventNotFoundException;
 import org.webatrio.backend.events.mappers.EventsMapper;
 import org.webatrio.backend.events.mappers.EventsMapperImpl;
 import org.webatrio.backend.events.models.Event;
@@ -26,7 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.webatrio.backend.events.utils.Utils.EVENT_ALREADY_EXIST_IN_DATABASE;
+import static org.webatrio.backend.events.utils.Utils.EVENT_NOT_EXIST;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -55,7 +56,7 @@ class EventServiceImplTest {
         EventDTO saveEventDTO = eventService.addEvent(eventDTO);
 
         //then
-        Assertions.assertThat(saveEventDTO).isNotNull();
+        assertThat(saveEventDTO).isNotNull();
     }
 
     @Test
@@ -75,37 +76,36 @@ class EventServiceImplTest {
                 .hasMessage(EVENT_ALREADY_EXIST_IN_DATABASE);
     }
 
-//    @Test
-//    void testGetEventsByLocation() {
-//        //given
-//        List<Event> events = Collections.singletonList(getEvent());
-//        Page event = Mockito.mock(Page.class);
-//        Mockito.when(eventRepository.findAll(Mockito.any(Pageable.class))).thenReturn(event);
-//        Mockito.when(eventRepository.findAll()).thenReturn(events);
-//
-//        //when
-//        List<EventDTO> eventDTOS = eventService.getEvents(1, 1, "bordeaux");
-//
-//
-//        //then
-//        Assertions.assertThat(eventDTOS).isNotNull();
-//        Assertions.assertThat(eventDTOS.size()).isEqualTo(0);
-//    }
-//
-//    @Test
-//    void testGetEventsWithEmpty() {
-//        //given
-//        List<Event> events = Collections.singletonList(getEvent());
-//        Mockito.when(eventRepository.findAll()).thenReturn(events);
-//
-//        //when
-//        List<EventDTO> eventDTOS = eventService.getEvents(1, 1, null);
-//
-//
-//        //then
-//        Assertions.assertThat(eventDTOS).isNotNull();
-//        Assertions.assertThat(eventDTOS.size()).isEqualTo(1);
-//    }
+    @Test
+    void testGetEventDTOSByLocationAndPage() {
+        //given
+        List<Event> events = Collections.singletonList(getEvent());
+
+        Mockito.when(eventRepository.findAll()).thenReturn(events);
+
+        //when
+        List<EventDTO> eventDTOS = eventService.getEvents( "bordeaux");
+
+
+        //then
+        assertThat(eventDTOS).isNotNull();
+        assertThat(eventDTOS.size()).isEqualTo(1);
+    }
+
+    @Test
+    void testGetEventsWithEmpty() {
+        //given
+        List<Event> events = Collections.singletonList(getEvent());
+        Mockito.when(eventRepository.findAll()).thenReturn(events);
+
+        //when
+        List<EventDTO> eventDTOS = eventService.getEvents("");
+
+
+        //then
+        assertThat(eventDTOS).isNotNull();
+        assertThat(eventDTOS.size()).isEqualTo(1);
+    }
 
 
     @Test
@@ -126,9 +126,38 @@ class EventServiceImplTest {
 
         //then
     }
+    @Test
+    public void testCancelExistingEvent() throws Exception {
+        // Mock data
+        Event expectedEvent = new Event();
+        expectedEvent.setTitle("Test Event");
+        expectedEvent.setStatus(true);
+        EventDTO expectedDTO = new EventDTO();
+
+        // Mocked behavior
+        Mockito.when(eventRepository.findAll()).thenReturn(Collections.singletonList(expectedEvent));
+        Mockito.when(eventsMapper.mapEventToEventDTO(expectedEvent)).thenReturn(expectedDTO);
+
+        // Call the method
+        EventDTO eventDTO = eventService.cancelEvent("Test Event");
+
+        // Verify interactions, event update, and returned DTO
+        Mockito.verify(eventRepository).findAll();
+        assertThat(expectedEvent.isStatus()).isFalse();
+        Mockito.verify(eventRepository).save(expectedEvent);
+        assertThat(eventDTO).isEqualTo(expectedDTO);
+    }
 
     @Test
-    void testUpdateEvent() {
+    public void testCancelNonExistingEvent() throws Exception {
+        // Mock data (event not found)
+        Mockito.when(eventRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Call the method (expecting exception)
+       Assertions.assertThatThrownBy(()->eventService.cancelEvent("Non-Existing Event"))
+               .isInstanceOf(EventNotFoundException.class).hasMessage(EVENT_NOT_EXIST);
+
+
     }
 
 

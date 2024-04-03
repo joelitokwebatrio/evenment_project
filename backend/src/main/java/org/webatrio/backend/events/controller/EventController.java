@@ -15,7 +15,6 @@ import org.webatrio.backend.events.exceptions.EventNotFoundException;
 import org.webatrio.backend.events.services.eventservice.EventService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/event")
@@ -33,7 +32,7 @@ public class EventController {
         return new ResponseEntity<>(addEventDTO, HttpStatus.CREATED);
     }
 
-    @PatchMapping(path = "/updateEvent")
+    @PutMapping(path = "/updateEvent")
     @PreAuthorize("hasRole('ORGANIZER')")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<EventDTO> updateEvent(@RequestBody EventDTO eventDTO) throws EventNotFoundException, EventErrorException {
@@ -41,22 +40,16 @@ public class EventController {
         return ResponseEntity.ok(updateEventDTO);
     }
 
-    @PostMapping(path = "/cancelEvent/{eventTitle}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+
+    @GetMapping(path = "/{idEvent}")
+    //@PreAuthorize("hasRole('ORGANIZER')")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<EventDTO> cancelEvent(@PathParam("eventTitle") String eventTitle) throws EventNotFoundException {
-        EventDTO cancelEventDTO = eventService.cancelEvent(eventTitle);
-        return ResponseEntity.ok(cancelEventDTO);
+    public ResponseEntity<EventDTO> getEvent(@PathVariable("idEvent") Long idEvent) {
+        return ResponseEntity.ok(eventService.getEvent(idEvent).orElse(null));
     }
 
-    @GetMapping(path = "/event/{idEvent}")
-    @PreAuthorize("hasRole('ORGANIZER')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<Optional<EventDTO>> getEvent(@PathVariable("idEvent") Long idEvent) {
-        return ResponseEntity.ok(eventService.getEvent(idEvent));
-    }
 
-    @DeleteMapping(path = "/event/{idEvent}")
+    @DeleteMapping(path = "/{idEvent}")
     @PreAuthorize("hasRole('ORGANIZER')")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<Void> deleteEvent(@PathVariable("idEvent") Long idEvent) {
@@ -66,12 +59,18 @@ public class EventController {
 
 
     @GetMapping(path = "/getAllEvents")
-    @PreAuthorize("hasRole('ORGANIZER')")
+    //@PreAuthorize("hasRole('ORGANIZER')")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<List<EventDTO>> getAllEvent(
-            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "location", defaultValue = "", required = false) String location) {
-        return new ResponseEntity<>(eventService.getEvents(pageNo, pageSize, location), HttpStatus.OK);
+    public ResponseEntity<List<EventDTO>> getAllEvent(@RequestParam(value = "location", defaultValue = "", required = false) String location) {
+        return new ResponseEntity<>(eventService.getEvents(location), HttpStatus.OK);
     }
+    @GetMapping(path = "/getAllEvents/{idParticipant}")
+    //@PreAuthorize("hasRole('ORGANIZER')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<List<EventDTO>> getAllEventByIdParticipant( @PathVariable Integer idParticipant) {
+        return new ResponseEntity<>(eventService.getEventByIdParticipant(idParticipant), HttpStatus.OK);
+    }
+
+
+
 }

@@ -1,26 +1,31 @@
 package org.webatrio.backend.events.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.webatrio.backend.events.dto.EventDTO;
-import org.webatrio.backend.events.services.eventservice.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.webatrio.backend.events.dto.EventDTO;
+import org.webatrio.backend.events.services.eventservice.EventService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 @WebMvcTest(controllers = EventController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ExtendWith(MockitoExtension.class)
-//@ContextConfiguration(classes = SecurityConfiguration.class)
+//@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class EventControllerTest {
 
     @Autowired
@@ -49,8 +54,8 @@ class EventControllerTest {
                 .build();
     }
 
-    @Test
-    void createEvent() throws Exception {
+//    @Test
+//    void createEvent() throws Exception {
 //        //given
 //        Mockito.when(eventService.addEvent(eventDTO)).thenReturn(eventDTO);
 //
@@ -61,18 +66,18 @@ class EventControllerTest {
 //
 //        //then
 //        response.andExpect(MockMvcResultMatchers.status().isCreated());
-
-    }
-
-    @Test
-    void updateEvent() {
-    }
-
-    @Test
-    void cancelEvent() {
-    }
-
-    @Test
-    void getAllEvent() {
-    }
+//
+//    }
+//
+//    @Test
+//    void updateEvent() {
+//    }
+//
+//    @Test
+//    void cancelEvent() {
+//    }
+//
+//    @Test
+//    void getAllEvent() {
+//    }
 }

@@ -3,5 +3,11 @@ O
 java:S2699p"-Add at least one assertion to this test case.(âí¦Ãşÿÿÿÿ8©©¦Îç1
 O
 java:S2699z"-Add at least one assertion to this test case.(¨ª²¸şÿÿÿÿ8©©¦Îç1
-K
-java:S2699ƒ"-Add at least one assertion to this test case.(¡®ıÙ8©©¦Îç1
+A
+java:S5786‚"Remove this 'public' modifier.(î´´¿úÿÿÿÿ8Å³åìé1
+A
+java:S5786˜"Remove this 'public' modifier.(£Äª§ıÿÿÿÿ8Å³åìé1
+N
+java:S5838\"1Use assertThat(actual).hasSize(expected) instead.(ªñÒÔ8Ô³åìé1
+N
+java:S5838k"1Use assertThat(actual).hasSize(expected) instead.(ªñÒÔ8Õ³åìé1

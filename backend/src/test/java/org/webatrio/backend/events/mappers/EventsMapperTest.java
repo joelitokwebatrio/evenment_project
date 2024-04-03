@@ -1,12 +1,12 @@
 package org.webatrio.backend.events.mappers;
 
-import  org.webatrio.backend.events.dto.EventDTO;
-import  org.webatrio.backend.events.models.Event;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.webatrio.backend.events.dto.EventDTO;
+import org.webatrio.backend.events.models.Event;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +35,7 @@ class EventsMapperTest {
         Assertions.assertThat(eventDTOMapper.getNumberOfParticipants()).isEqualTo(event.getNumberOfParticipants());
         Assertions.assertThat(eventDTOMapper.getOrganiserName()).isEqualTo(event.getOrganiserName());
     }
+
     @Test
     void mapNullEventDTOTNull() {
 
@@ -46,7 +47,7 @@ class EventsMapperTest {
 
         //then
         Assertions.assertThat(event).isNull();
-      }
+    }
 
     @Test
     void mapEventToEventDTO() {

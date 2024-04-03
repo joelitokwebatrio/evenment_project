@@ -4,21 +4,20 @@ package org.webatrio.backend.events.services.inscriptionservice;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.webatrio.backend.events.dao.EPRepository;
 import org.webatrio.backend.events.dao.EventRepository;
 import org.webatrio.backend.events.exceptions.EventErrorException;
 import org.webatrio.backend.events.exceptions.EventNotFoundException;
 import org.webatrio.backend.events.exceptions.ParticipantNotFoundException;
-import org.webatrio.backend.events.models.EP;
 import org.webatrio.backend.events.models.Event;
 import org.webatrio.backend.security.dao.ParticipantRepository;
 import org.webatrio.backend.security.models.participant.Participant;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.webatrio.backend.events.utils.Utils.*;
+import static org.webatrio.backend.events.utils.Utils.EVENT_NOT_EXIST;
+import static org.webatrio.backend.events.utils.Utils.PARTICIPANT_NOT_EXIST;
 
 
 @Service
@@ -26,79 +25,77 @@ import static org.webatrio.backend.events.utils.Utils.*;
 @Transactional
 public class InscriptionServiceImpl implements InscriptionService {
     private final EventRepository eventRepository;
-    private final EPRepository epRepository;
     private final ParticipantRepository participantRepository;
 
     /**
      * Inscrire un participant a un evenement
      *
-     * @param eventTitle
-     * @param email
+     * @param idEvent
+     * @param idParticipant
      * @throws EventNotFoundException
      * @throws ParticipantNotFoundException
      * @throws EventErrorException
      */
     @Override
-    public void addParticipantToEvent(String eventTitle, String email) throws EventNotFoundException, ParticipantNotFoundException, EventErrorException {
-        Optional<Event> event = eventRepository.findEventByTitle(eventTitle);
-        Optional<Participant> participant = participantRepository.findParticipantByEmail(email);
+    public void addParticipantToEvent(Long idEvent, Integer idParticipant) throws EventNotFoundException, ParticipantNotFoundException, EventErrorException {
+        Optional<Event> event = eventRepository.findById(idEvent);
+        Optional<Participant> participant = participantRepository.findById(idParticipant);
         if (participant.isEmpty()) {
             throw new ParticipantNotFoundException(PARTICIPANT_NOT_EXIST);
         }
         if (event.isEmpty()) {
             throw new EventNotFoundException(EVENT_NOT_EXIST);
         }
-        /**
-         * Ajouter le nombre de participant a un evenement
-         */
-        int numberOfParticipant = event.get().getNumberOfParticipants();
-        event.get().setNumberOfParticipants(numberOfParticipant + 1);
-        eventRepository.save(event.get());
-        /**
-         * Ajouter les participant et les evenement dans la table de jointure
-         * que j'utilise pour faire la correspondance
-         */
-        EP ep = new EP();
-        ep.setEventId(event.get().getId());
-        ep.setParticipantId(participant.get().getId());
-        ep.setEventTitle(event.get().getTitle());
-        ep.setParticipantEmail(participant.get().getEmail());
+        boolean noAlreadyRegister = participant.stream()
+                .map(Participant::getEvents)
+                .flatMap(Collection::stream).noneMatch(e -> event.get().equals(e));
 
-        if (epRepository.findEPByParticipantEmail(ep.getParticipantEmail())
-                .stream().anyMatch(ep1 -> ep.getEventTitle().equals(ep1.getEventTitle()))) {
-            throw new EventErrorException(ERROR_UNKNOWM);
+        if (noAlreadyRegister) {
+            participant.ifPresent(p -> p.getEvents().add(event.get()));
+            event.ifPresent(e -> e.getParticipants().add(participant.get()));
         }
-        epRepository.save(ep);
+
+        /**
+         * ajouter un participant a un evenement
+         */
+
+        participantRepository.save(participant.get());
+
     }
 
     /**
-     * Annuler un evenement
+     * supprimer un participant d un evenement
      *
-     * @param emailParticipant
-     * @param titleEvent
+     * @param idEvent
+     * @param idParticipant
      */
 
     @Override
-    public void cancelParticipantToEvent(String emailParticipant, String titleEvent) {
-        Optional<EP> epFind = epRepository.findEPByParticipantEmail(emailParticipant);
-        epFind.ifPresent(epRepository::delete);
+    public void cancelParticipantToEvent(Long idEvent, Integer idParticipant) {
+        Optional<Event> eventOptional = eventRepository.findById(idEvent);
+        Optional<Participant> participantOptional = participantRepository.findById(idParticipant);
+        if (participantOptional.isPresent() && eventOptional.isPresent()) {
+            participantOptional.get().getEvents().remove(eventOptional.get());
+            eventOptional.get().getParticipants().remove(participantOptional.get());
+            eventRepository.save(eventOptional.get());
+            participantRepository.save(participantOptional.get());
+        }
     }
 
     /**
      * Recuperation de tous les participant inscrire a un evenement.
      *
-     * @param titleEvent
+     * @param idEvent
      * @return
      */
     @Override
-    public List<Participant> getAllParticipantByEvents(String titleEvent) {
-        List<Participant> users = new ArrayList<>();
-        List<EP> eps = epRepository.findEPByEventTitle(titleEvent);
-        eps.stream().map(EP::getParticipantEmail).forEach(epEmail -> {
-            Optional<Participant> userOptional = participantRepository.findParticipantByEmail(epEmail);
-            userOptional.ifPresent(users::add);
-        });
+    public List<Participant> getAllParticipantByEvents(Long idEvent) {
+        return eventRepository.findById(idEvent)
+                .map(Event::getParticipants)
+                .stream().flatMap(Collection::stream).toList();
 
-        return users;
     }
+
+
+
 }
