@@ -1,2 +1,5 @@
 .idea/
 frontend/node_modules
+frontend/.vscode
+frontend/.angular
+frontend/.editorconfig
