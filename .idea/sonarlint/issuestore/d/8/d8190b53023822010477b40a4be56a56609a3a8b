@@ -1,35 +1,8 @@
 
-X	java:S125%"<This block of commented-out lines of code should be removed.(Û™ñ“8Ò¢¡úé1
-d
-java:S1128"GRemove this unused import 'org.springframework.boot.CommandLineRunner'.(È—ÿÅ8Ò¢¡úé1
-e
-java:S1128"HRemove this unused import 'org.springframework.context.annotation.Bean'.(‚î‰Ş8Ò¢¡úé1
-i
-java:S1128"LRemove this unused import 'org.webatrio.backend.events.dao.EventRepository'.(ÂİŠ†8Ò¢¡úé1
-g
-java:S1128"ERemove this unused import 'org.webatrio.backend.events.dto.EventDTO'.(ù¯Â‹ÿÿÿÿÿ8Ò¢¡úé1
-x
-java:S1128	"[Remove this unused import 'org.webatrio.backend.events.services.eventservice.EventService'.(‹·»İ8Ò¢¡úé1
-q
-java:S1128
-"TRemove this unused import 'org.webatrio.backend.security.dao.ParticipantRepository'.(–ğ²8Ò¢¡úé1
-k
-java:S1128"NRemove this unused import 'org.webatrio.backend.security.dao.TokenRepository'.(²¯´˜8Ò¢¡úé1
-k
-java:S1128"NRemove this unused import 'org.webatrio.backend.security.dto.RegisterRequest'.(Ã²šì8Ò¢¡úé1
-i
-java:S1128"GRemove this unused import 'org.webatrio.backend.security.enums.Gender'.(¼çı¢ıÿÿÿÿ8Ò¢¡úé1
-‚
-java:S1128"eRemove this unused import 'org.webatrio.backend.security.services.authservice.AuthenticationService'.(äĞé¹8Ò¢¡úé1
-R
-java:S1128"0Remove this unused import 'java.time.LocalDate'.(›‘¬èıÿÿÿÿ8Ò¢¡úé1
-V
-java:S1128"4Remove this unused import 'java.time.LocalDateTime'.(æÃ§ƒüÿÿÿÿ8Ò¢¡úé1
-R
-java:S1128"0Remove this unused import 'java.time.LocalTime'.(à®øÃùÿÿÿÿ8Ò¢¡úé1
-M
-java:S1128"+Remove this unused import 'java.util.List'.(Õë±Äøÿÿÿÿ8Ò¢¡úé1
-q
-java:S1128"ORemove this unused import 'org.webatrio.backend.security.enums.Role.ORGANIZER'.(ØåË³ÿÿÿÿÿ8Ò¢¡úé1
-s
-java:S1128"QRemove this unused import 'org.webatrio.backend.security.enums.Role.PARTICIPANT'.(Ì¸œüÿÿÿÿ8Ò¢¡úé1
+h
+java:S1192="LDefine a constant instead of duplicating this literal "Participant" 4 times.(µÛÂO8–—şê1
+G	java:S1062"+Replace this use of System.out by a logger.(Ñ†ê¸8§—şê1
+L	java:S106;"+Replace this use of System.out by a logger.(À¼÷óûÿÿÿÿ8ª—şê1
+G	java:S106F"+Replace this use of System.out by a logger.(ÍÕÄ‡8­—şê1
+G	java:S106R"+Replace this use of System.out by a logger.(¿·Ó›8®—şê1
+G	java:S106^"+Replace this use of System.out by a logger.(õ¥ıé8±—şê1
